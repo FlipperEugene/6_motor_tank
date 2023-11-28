@@ -13,10 +13,9 @@ controller_1 = Controller(PRIMARY)
 motor_18 = Motor(Ports.PORT18, GearSetting.RATIO_6_1, False)
 motor_19 = Motor(Ports.PORT19, GearSetting.RATIO_6_1, True)
 motor_20 = Motor(Ports.PORT20, GearSetting.RATIO_6_1, True)
-
 rightside = MotorGroup(motor_11, motor_12, motor_13)
 leftside = MotorGroup(motor_18, motor_19, motor_20)
-
+#nerd
 """Extra Motors"""
 motor_15 = Motor(Ports.PORT15, GearSetting.RATIO_6_1, True)
 motor_16 = Motor(Ports.PORT16, GearSetting.RATIO_6_1, False)
