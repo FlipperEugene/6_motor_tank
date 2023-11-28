@@ -30,29 +30,16 @@ leftside.set_velocity(100, PERCENT)
 # Begin project code
 # Create callback functions for each controller button event
 def onStart():
+    mode = 3
     controller_1.screen.print("Carter Mode?")
-    if controller_1.buttonA.pressing():
-         mode = 1
-    if controller_1.buttonB.pressing():
-        mode = 2
-def controller_L1_Pressed():
-    pass
-
-def controller_L2_Pressed():
-    pass
-
-
-def controller_R1_Pressed():
-    pass
-
-def controller_R2_Pressed():
-    pass
+    while mode == 3:
+        if controller_1.buttonA.pressing():
+            mode = 1
+        if controller_1.buttonB.pressing():
+            mode = 2
 
 # Create Controller callback events - 15 msec delay to ensure events get registered
-controller_1.buttonL1.pressed(controller_L1_Pressed)
-controller_1.buttonL2.pressed(controller_L2_Pressed)
-controller_1.buttonR1.pressed(controller_R1_Pressed)
-controller_1.buttonR2.pressed(controller_R2_Pressed)
+
 wait(15, MSEC)
 onStart()
 # Configure Arm and Claw motor hold settings and velocity
