@@ -1,12 +1,10 @@
 # Library imports
 from vex import *
 import math
-
 # Brain should be defined by default
 brain=Brain()
-global mode
 
-mode = 10
+mode = 3
 log_directory = "/logs/"
 """drive Motors + Remote"""
 motor_11 = Motor(Ports.PORT11, GearSetting.RATIO_6_1, True)
@@ -41,7 +39,7 @@ trackWidth = 370
 wheelBase = 330
 gearRatio = .4
 drivetrain = SmartDrive(leftside, rightside, gyro, wheelTravel, trackWidth, wheelBase, MM, gearRatio)
-
+drivetrain
 gyro.calibrate
 wait(1, SECONDS)
 # Begin project code
@@ -111,13 +109,20 @@ wait(15, MSEC)
 # Configure Arm and Claw motor hold settings and velocity
 
 def pre_autonomous():
+    global mode
     mode = 3
-    # controller_1.screen.print("Carter Mode?")
-    # while mode == 3:
-    #     if controller_1.buttonA.pressing():
-    #         mode = 1
-    #     if controller_1.buttonB.pressing():
-    #         mode = 2
+    controller_1.screen.print("Carter Mode?")
+    while mode not in (1, 2):
+        if controller_1.buttonA.pressing():
+            mode = 1
+            controller_1.screen.clear_line(1)
+            controller_1.screen.set_cursor(1,1)
+            controller_1.screen.print("you're just wrong")
+        if controller_1.buttonB.pressing():
+            mode = 2
+            controller_1.screen.clear_line(1)
+            controller_1.screen.set_cursor(1,1)
+            controller_1.screen.print("Good choice")
     if not brain.sdcard.is_inserted():
         brain.screen.print("No Sd card not logging")
     autonomous()
@@ -125,15 +130,15 @@ def pre_autonomous():
 
 def autonomous():
     # forward(100, 50)
-    turnToHeading(-90, 80)
+    turnToHeading(-90, 100)
     # forward(300, 100)
     # wait(30,MSEC)
     # turnToHeading(90, 60)
     # wait(30,MSEC)
     # forward(300, 200)
 
-    # climbmotor.spin_for(FORWARD, 86, DEGREES)
-    # climbmotor.stop
+    climbmotor.spin_for(FORWARD, 86, DEGREES)
+    climbmotor.stop
     # brain.screen.clear_screen()
     brain.screen.print("autonomous code")
     # place automonous code here
@@ -162,14 +167,17 @@ def user_control():
 
         
 
-        rightside.spin(FORWARD)
-        leftside.spin(FORWARD)
-        # if mode == 2:
-        rightside.set_velocity(controller_1.axis2.position(), PERCENT)
-        leftside.set_velocity(controller_1.axis3.position(), PERCENT)
-        # if mode == 1:
-        #     rightside.set_velocity((controller_1.axis3.position() - controller_1.axis4.position()), PERCENT)
-        #     leftside.set_velocity((controller_1.axis3.position() + controller_1.axis4.position()), PERCENT)
+        
+        if mode == 2:
+            rightside.spin(FORWARD)
+            leftside.spin(FORWARD)
+            rightside.set_velocity(controller_1.axis2.position(), PERCENT)
+            leftside.set_velocity(controller_1.axis3.position(), PERCENT)
+        elif mode == 1:
+            rightside.spin(FORWARD)
+            leftside.spin(FORWARD)
+            rightside.set_velocity((controller_1.axis3.position() - controller_1.axis4.position()), PERCENT)
+            leftside.set_velocity((controller_1.axis3.position() + controller_1.axis4.position()), PERCENT)
 
 # class Logging(object):
     """
@@ -226,8 +234,8 @@ def user_control():
             self.flush_file_contents()
 
 # create competition instance
-comp = Competition(autonomous,user_control)
-autonomous()
+comp = Competition(user_control, autonomous)
+pre_autonomous()
 # Main Controller loop to set motors to controller axis postiions
 
         
