@@ -39,7 +39,6 @@ trackWidth = 370
 wheelBase = 330
 gearRatio = .4
 drivetrain = SmartDrive(leftside, rightside, gyro, wheelTravel, trackWidth, wheelBase, MM, gearRatio)
-drivetrain
 gyro.calibrate
 wait(1, SECONDS)
 # Begin project code
