@@ -16,6 +16,7 @@ motor_19 = Motor(Ports.PORT19, GearSetting.RATIO_6_1, True)
 motor_20 = Motor(Ports.PORT20, GearSetting.RATIO_6_1, True)
 rightside = MotorGroup(motor_11, motor_12, motor_13)
 leftside = MotorGroup(motor_18, motor_19, motor_20)
+compMode = True
 #nerd
 """Extra Motors"""
 motor_15 = Motor(Ports.PORT5, GearSetting.RATIO_6_1, False)
@@ -37,10 +38,14 @@ wheelDiameterCM = 8.255
 wheelTravel = 275
 trackWidth = 370
 wheelBase = 330
-gearRatio = .4
+gearRatio = 1
 drivetrain = SmartDrive(leftside, rightside, gyro, wheelTravel, trackWidth, wheelBase, MM, gearRatio)
-gyro.calibrate
-wait(1, SECONDS)
+
+class Team:
+    blue = 0
+    red = 1
+    skills = 2
+
 # Begin project code
 # Create callback functions for each controller button event
 
@@ -62,54 +67,54 @@ def onevent_controller_1buttonL2_released_0():
     climbmotor.stop()
 
 
-def forward_time(time, speed):
-    leftside.set_stopping(BRAKE)
-    rightside.set_stopping(BRAKE)
-    leftside.set_velocity(speed, PERCENT)
-    rightside.set_velocity(speed, PERCENT)
-
-    start_time = brain.timer.time(SECONDS)
-
-    while brain.timer.time(SECONDS) - start_time < time:
-        wait(5, MSEC)
-    
-    leftside.set_velocity(0, PERCENT)
-    rightside.set_velocity(0, PERCENT)
-    leftside.set_stopping(COAST)
-    rightside.set_stopping(COAST)
-
 def forward(distance, speed):
-    if speed == 100:
-        speed = 100 * 2
     drivetrain.set_stopping(BRAKE)
-    drivetrain.set_drive_velocity(speed)
-    drivetrain.set_turn_velocity(speed)
+    drivetrain.set_drive_velocity(speed, PERCENT)
+    drivetrain.set_turn_velocity(speed, PERCENT)
     drivetrain.drive_for(FORWARD, distance, MM)
     drivetrain.stop()
-    drivetrain.set_stopping(BRAKE)
-    drivetrain.set_stopping(COAST)
+    # drivetrain.set_stopping(COAST)
 
 def turnToHeading(heading, speed):
     drivetrain.set_stopping(BRAKE)
-    drivetrain.set_drive_velocity(speed)
-    drivetrain.set_turn_velocity(speed)
+    drivetrain.set_drive_velocity(speed, PERCENT)
+    drivetrain.set_turn_velocity(speed, PERCENT)
      # Adjust the wait time as needed
 
     drivetrain.turn_to_heading(heading)
     drivetrain.stop()
-    drivetrain.set_stopping(BRAKE)
-    drivetrain.set_stopping(COAST)
+    # drivetrain.set_stopping(COAST)
 
+def turnToHeadingAndDrive(heading, distance, speed):
+    drivetrain.set_stopping(BRAKE)
+    drivetrain.set_drive_velocity(speed, PERCENT)
+    drivetrain.set_turn_velocity(speed, PERCENT)
+    drivetrain.turn_to_heading(heading, DEGREES)
+    drivetrain.drive_for(FORWARD, distance, speed)
+    drivetrain.stop()
+    # drivetrain.set_stopping(BRAKE)
+    # drivetrain.set_stopping(COAST)
+    
 
 # Create Controller  events - 15 msec delay to ensure events get registered
 
-wait(15, MSEC)
+wait(10, MSEC)
 
 # Configure Arm and Claw motor hold settings and velocity
 
 def pre_autonomous():
     global mode
+    gyro.calibrate()
+    # if brain.battery.capacity() <= 70 and compMode == True:
+    #     brain.screen.set_font(FontType.PROP40)
+    #     brain.screen.print("Change Battery")
+    
+    if brain.sdcard.is_inserted():
+        brain.screen.clear_screen()
+        global sd
+        sd = True
     mode = 3
+    brain.screen.draw_image_from_file("boot.png", 0, 0)
     controller_1.screen.print("Carter Mode?")
     while mode not in (1, 2):
         if controller_1.buttonA.pressing():
@@ -124,20 +129,16 @@ def pre_autonomous():
             controller_1.screen.print("Good choice")
     if not brain.sdcard.is_inserted():
         brain.screen.print("No Sd card not logging")
-    autonomous()
+    # autonomous()
 
 
 def autonomous():
-    # forward(100, 50)
-    turnToHeading(-90, 100)
-    # forward(300, 100)
-    # wait(30,MSEC)
-    # turnToHeading(90, 60)
-    # wait(30,MSEC)
-    # forward(300, 200)
-
-    climbmotor.spin_for(FORWARD, 86, DEGREES)
-    climbmotor.stop
+    forward(-700, 50)
+    turnToHeading(90, 10)
+    forward(-100, 10)
+    
+    climbmotor.spin_for(FORWARD, 436, DEGREES)
+    forward(500, 100)
     # brain.screen.clear_screen()
     brain.screen.print("autonomous code")
     # place automonous code here
@@ -155,8 +156,10 @@ def user_control():
     
     while True:
         
+
         if controller_1.buttonL2.pressing():
             wings.set(True)
+            """Deploy the wings"""
         else:
             wings.set(False)
         if controller_1.buttonL1.pressing():
@@ -164,15 +167,18 @@ def user_control():
         else:
             intake.stop()
 
-        
+        brain.screen.print("penis")
+        brain.screen.new_line()
 
         
         if mode == 2:
+            """Tank steering"""
             rightside.spin(FORWARD)
             leftside.spin(FORWARD)
             rightside.set_velocity(controller_1.axis2.position(), PERCENT)
             leftside.set_velocity(controller_1.axis3.position(), PERCENT)
         elif mode == 1:
+            """Single stick drive"""
             rightside.spin(FORWARD)
             leftside.spin(FORWARD)
             rightside.set_velocity((controller_1.axis3.position() - controller_1.axis4.position()), PERCENT)
@@ -233,7 +239,7 @@ def user_control():
             self.flush_file_contents()
 
 # create competition instance
-comp = Competition(user_control, autonomous)
+comp = Competition(autonomous, user_control)
 pre_autonomous()
 # Main Controller loop to set motors to controller axis postiions
 
