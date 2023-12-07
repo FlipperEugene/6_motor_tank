@@ -85,16 +85,7 @@ def turnToHeading(heading, speed):
     drivetrain.stop()
     # drivetrain.set_stopping(COAST)
 
-def turnToHeadingAndDrive(heading, distance, speed):
-    drivetrain.set_stopping(BRAKE)
-    drivetrain.set_drive_velocity(speed, PERCENT)
-    drivetrain.set_turn_velocity(speed, PERCENT)
-    drivetrain.turn_to_heading(heading, DEGREES)
-    drivetrain.drive_for(FORWARD, distance, speed)
-    drivetrain.stop()
-    # drivetrain.set_stopping(BRAKE)
-    # drivetrain.set_stopping(COAST)
-    
+
 
 # Create Controller  events - 15 msec delay to ensure events get registered
 
@@ -241,6 +232,6 @@ def user_control():
 # create competition instance
 comp = Competition(autonomous, user_control)
 pre_autonomous()
-# Main Controller loop to set motors to controller axis postiions
+# Main Controller loop to set motors to controller axis positions
 
         
